@@ -52,19 +52,21 @@ fn (mut h Handler) handle(req Request) Response {
 					res.body = "${h.players_po_key.len}/${h.game}"
 				}
 				"map"{
-					mut maping := ""
-					for x in h.world_map{
-						for y in x{
-							maping += "${y}"
-						}
-					}
-					res.body = maping
+					res.body = "${h.world_map}"
 				}
 				"spawn"{
 					if actions[3] in h.players_in_game_key{
 						player_cons_index := h.players[actions[3]]
 						if !h.players_in_game[player_cons_index].alive{
-							h.player_spawn(player_cons_index)
+								// Coor
+								x := rand.int_in_range(0, 10) or {0}
+								y := rand.int_in_range(0, 10) or {0}
+
+								gun := [[2, 0], [-2, 0], [0, 2], [0, -2]]
+
+								h.players_in_game[player_cons_index] = Player{true, x, y, Orientations.up, 1, gun}
+								res.body = "${x}/${y}/${gun}"
+								return res
 						}
 					}
 				}
@@ -117,7 +119,7 @@ fn (mut h Handler) handle(req Request) Response {
 								}
 							}
 							"shoot"{
-								shoot_pos = h.players_in_game[player_index].gun[actions[5]]
+								shoot_pos := h.players_in_game[player_index].gun[actions[5]]
 							}
 							else{
 								status_code = 404
@@ -183,7 +185,7 @@ enum Orientations {
 	up
 }
 
-fn (mut h  Handler) game_start() (){
+fn (mut h  Handler) game_start(){
 	// Map
 	h.map_crea()
 	
@@ -208,18 +210,6 @@ fn (mut h Handler) map_crea(){
 
 }
 
-fn (mut h Handler) player_spawn(player_cons_index int){
-	// Coor
-	x := rand.int_in_range(0, 10)
-	y := rand.int_in_range(0, 10)
-
-	gun := [[2, 0], [-2, 0], [0, 2], [0, -2]]
-
-	h.players_in_game[player_cons_index] = Player{true, x, y, Orientations.up, 1, gun}
-	res.body = "${x}/${y}/ ${gun}"
-	return res
-}
-
 // fn (mut h Handler) game_end(){
 // 	h.game = false
 	
@@ -232,6 +222,6 @@ fn (mut h Handler) player_spawn(player_cons_index int){
 
 // 	h.players_in_game = []
 
-// 	h.players = map[string]int{}
+// 	h.players.clear()
 // }
 
