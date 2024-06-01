@@ -12,9 +12,16 @@ const serv_url     = "http://93.23.133.25:8100/"
 struct App {
 mut:
     gg    &gg.Context = unsafe { nil }
-    square_size int = 10
-    mut:
-        player_name =   string
+    
+
+    player_name     string
+    player_key      string
+
+    host            bool    = false
+    game			bool    = false
+    
+    tiles_size      int     = 10
+    world_map       []string
 }
 
 
@@ -37,10 +44,32 @@ fn main() {
 }
 
 fn on_frame(mut app App) {
-    //Draw
-    app.gg.begin()
-    app.gg.draw_square_filled(0, 0, app.square_size, gg.Color{255, 0, 0, 255}) // couleurs en rgba
-    app.gg.end()
+    //
+    if app.game{
+
+    }
+    else if app.player_key == ""{
+        res         := http.get(serv_url + "phareouest/po") or {http.Response{}}
+        res_body    := res.body.split('/')
+        app.player_key = res_body[0]
+        if res.body.len == 2{
+            app.host = true
+        }
+    }
+    else{
+        res         := http.get(serv_url + "phareouest/wait_start") or {http.Response{}}
+        res_body    := res.body.split('/')
+        nb_player   := res_body[0]
+        println(nb_player)
+        if res_body[1] == "true"{
+            app.game = true
+            res_map := http.get(serv_url + "phareouest/map") or {http.Response{}}
+            mut map_tempo := res_map.body.split(', ')
+            map_tempo[0] = map_tempo[0][1..]
+            map_tempo[map_tempo.len - 1] = map_tempo[map_tempo.len - 1][..map_tempo[map_tempo.len - 1].len - 1]
+            app.world_map
+        }
+    }
 }
 
 fn on_event(e &gg.Event, mut app App){
@@ -48,21 +77,34 @@ fn on_event(e &gg.Event, mut app App){
         .key_down {
             match e.key_code {
                 .escape {app.gg.quit()}
+                .enter{
+                    if app.host{
+                        http.get(serv_url + "phareouest/start") or {http.Response{}}
+                    }
+                }
                 .right{
-                    repons := http.get(serv_url + "phareouest/" + app.player_name "/action/right") or {http.Response{}}
-                    print(repons)
+                    if app.game{
+                        res := http.get(serv_url + "phareouest/" + app.player_name + "/action/right") or {http.Response{}}
+                        print(res)
+                    }
                 }
                 .left{
-                    repons := http.get(serv_url + "phareouest/" + app.player_name "/action/left") or {http.Response{}}
-                    print(repons)
+                    if app.game{
+                        res := http.get(serv_url + "phareouest/" + app.player_name + "/action/left") or {http.Response{}}
+                        print(res) 
+                    }
                 }
                 .down{
-                    repons := http.get(serv_url + "phareouest/" + app.player_name "/action/down") or {http.Response{}}
-                    print(repons)
+                    if app.game{
+                        res := http.get(serv_url + "phareouest/" + app.player_name + "/action/down") or {http.Response{}}
+                        print(res)
+                    }
                 }
                 .up{
-                    repons := http.get(serv_url + "phareouest/" + app.player_name "/action/up") or {http.Response{}}
-                    print(repons)
+                    if app.game{
+                        res := http.get(serv_url + "phareouest/" + app.player_name + "/action/up") or {http.Response{}}
+                    print(res)
+                    }
                 }
                 else {}
             }

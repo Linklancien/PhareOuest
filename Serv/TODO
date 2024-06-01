@@ -13,7 +13,7 @@ added (serv){
     donner info de qui est premier joueur
 }
 
-faire map_crea()
+améliorer map_crea()
 shoot() qui fonctionne
 faire pick()/action/pick/u\d\l\r : rammasser l item dans la direction (renvoie l objet rammassé si y en a un et ses caractéristiques)
 get les players dans ton champ de vision    Ennemy : x, y, bigou_points
@@ -22,5 +22,4 @@ get les items dans le champ de vision
 /action/ -> cappé à 1 par 1/6seconde niveau serveur
 
 data envoyé au client : 
-
 Gun : [[x,y], ...] -> toutes les positions de tirs possibles (relatives au joueur) (affichées pour le gun en main en tant que cases clickables sur ton écran) 

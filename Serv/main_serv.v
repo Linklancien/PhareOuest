@@ -11,12 +11,12 @@ struct  Handler {
 		// Game
 		// Map player_key -> player_index for players_in_game
 		game				bool
-		players				map
+		players				map[string]int
 		players_in_game_key	[]string
 		players_in_game		[]Player
 		
 		// Map
-		world_map	[][]string
+		world_map	[]string
 }
 
 fn (mut h Handler) handle(req Request) Response {
@@ -73,65 +73,67 @@ fn (mut h Handler) handle(req Request) Response {
 				"action"{
 					if actions[3] in h.players_in_game_key{
 						player_index := h.players[actions[3]]
-						match actions[4]{
-							"move"{
-								match actions[5]{
-									"right"{
-										h.players_in_game[player_index].x += 1
-										h.players_in_game[player_index].orientation = Orientations.right
-									}
-									"left"{
-										h.players_in_game[player_index].x -= 1
-										h.players_in_game[player_index].orientation = Orientations.left
-									}
-									"down"{
-										h.players_in_game[player_index].y += 1
-										h.players_in_game[player_index].orientation = Orientations.down
-									}
-									"up"{
-										h.players_in_game[player_index].y -= 1
-										h.players_in_game[player_index].orientation = Orientations.up
-									}
-									else{
-										status_code = 404
-										res.body = "Not found"
-									}
-								}
-							}
-							"pick"{
-								match actions[5]{
-									"right"{
-										
-									}
-									"left"{
-										
-									}
-									"down"{
-										
-									}
-									"up"{
-										
-									}
-									else{
-										status_code = 404
-										res.body = "Not found"
+						if h.players_in_game[h.players[actions[3]]].alive{
+							match actions[4]{
+								"move"{
+									match actions[5]{
+										"right"{
+											h.players_in_game[player_index].x += 1
+											h.players_in_game[player_index].orientation = Orientations.right
+										}
+										"left"{
+											h.players_in_game[player_index].x -= 1
+											h.players_in_game[player_index].orientation = Orientations.left
+										}
+										"down"{
+											h.players_in_game[player_index].y += 1
+											h.players_in_game[player_index].orientation = Orientations.down
+										}
+										"up"{
+											h.players_in_game[player_index].y -= 1
+											h.players_in_game[player_index].orientation = Orientations.up
+										}
+										else{
+											status_code = 404
+											res.body = "Not found"
+										}
 									}
 								}
-							}
-							"shoot"{
-								shoot_pos := h.players_in_game[player_index].gun[actions[5]]
-							}
-							else{
-								status_code = 404
-								res.body = "Not found"
+								"pick"{
+									match actions[5]{
+										"right"{
+											
+										}
+										"left"{
+											
+										}
+										"down"{
+											
+										}
+										"up"{
+											
+										}
+										else{
+											status_code = 404
+											res.body = "Not found"
+										}
+									}
+								}
+								"shoot"{
+									shoot_pos := h.players_in_game[player_index].gun[actions[5].int()]
+								}
+								else{
+									status_code = 404
+									res.body = "Not found"
+								}
 							}
 						}
 					}
 				}
 				"alive"{
 					if actions[3] in h.players_in_game_key{
-						if h.players[actions[3]].alive{
-							res.body = "true/${h.players[actions[3]].bigouden}"
+						if h.players_in_game[h.players[actions[3]]].alive{
+							res.body = "true/${h.players_in_game[h.players[actions[3]]].bigouden}"
 						}
 						else{
 							res.body = "false"
@@ -195,8 +197,8 @@ fn (mut h  Handler) game_start(){
 
 	for _ in 0..h.players_in_game_key.len{
 		h.players_in_game << Player{}
-	}
 
+	}
 	mut player_nb := 0
 	for key in h.players_in_game_key{
 		h.players[key] = player_nb
@@ -207,7 +209,7 @@ fn (mut h  Handler) game_start(){
 }
 
 fn (mut h Handler) map_crea(){
-
+	h.world_map = []string{len: 10, cap: 10, init: if index == 0 || index == 9 {"eeeeeeeeee"}else{"ehhhhhhhhe"}}
 }
 
 // fn (mut h Handler) game_end(){
