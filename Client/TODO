@@ -3,13 +3,14 @@ added{
     /start/player_key ->  si tu as le bonplayer_key (celui de l admin / premier joueur) tu peux lancer la game
     /wait_start/ -> te dis cb y a de joueurs et si la game est lancée ou pas 
     /map/ : get la map en début de game (elle ne sera pas modifiée) (eau, herbe,  Kouin-amann, phare)  PhareOuest
+    /spawn/ -> si la game est lancée et que tu es mort (ou pas spawn) renvoie la position de spawn et ton gun
+    /action/move/u\d\l\r : bouger dans la direction et te tourne dans la direction (renvoie potentiellement si tu as fusionné les bigoudens)
+    map_render()
+    /action/shoot/index_pos  : shoot à la position qui est à l index index_pos dans l array des cases possibles à shoot du gun
+    /alive/  -> te dis si t es mort,  à appeler après l action + Bigouden : points int -> indique la progression du bigouden (le client peut en déduire le tier)
 }
 
-/spawn/ -> si la game est lancée et que tu es mort (ou pas spawn) renvoie la position de spawn et ton gun
-faire game_start()
-/action/move/u\d\l\r : bouger dans la direction et te tourne dans la direction (renvoie potentiellement si tu as fusionné les bigoudens)
-/action/shoot/index_pos  : shoot à la position qui est à l index index_pos dans l array des cases possibles à shoot du gun
-/alive/  -> te dis si t es mort,  à appeler après l action + Bigouden : points int -> indique la progression du bigouden (le client peut en déduire le tier)
+
 /around_players/player_key : get les players dans ton champ de vision (plus petit quand y a la pluie) à appeler après l action
 /around_items/player_key : get les items dans le champ de vision, à appeler après l action
 donner info de qui est premier joueur

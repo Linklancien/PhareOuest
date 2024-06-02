@@ -33,17 +33,23 @@ fn (mut h Handler) handle(req Request) Response {
 		'phareouest'{
 			match actions[2]{
 				"po"{
-					mut player_key := rand.ascii(8)
+					mut player_key := rand.string_from_set("azertyuiopqsdfghjklmwxcvbn", 8)
 					for h.players_po_key.any(it == player_key){
-						player_key = rand.ascii(8)
+						player_key = rand.string_from_set("azertyuiopqsdfghjklmwxcvbn", 8)
 					}
 					h.players_po_key << player_key
 					res.body = player_key
 					if h.players_po_key.len == 1{
 						res.body += "/host"
 					}
+					else{
+						res.body += "/not_host"
+					}
 				}
 				"start"{
+					eprintln("Start?")
+					eprintln(actions[3])
+					eprintln(h.players_po_key[0])
 					if actions[3] == h.players_po_key[0]{
 						h.game_start()
 					}
@@ -120,7 +126,7 @@ fn (mut h Handler) handle(req Request) Response {
 									}
 								}
 								"shoot"{
-									shoot_pos := h.players_in_game[player_index].gun[actions[5].int()]
+									//shoot_pos := h.players_in_game[player_index].gun[actions[5].int()]
 								}
 								else{
 									status_code = 404
@@ -191,14 +197,15 @@ fn (mut h  Handler) game_start(){
 	// Map
 	h.map_crea()
 	
+	eprintln("Map created")
 	// players
 	h.players_in_game_key = h.players_po_key
 	h.players_po_key	= []
 
 	for _ in 0..h.players_in_game_key.len{
 		h.players_in_game << Player{}
-
 	}
+
 	mut player_nb := 0
 	for key in h.players_in_game_key{
 		h.players[key] = player_nb
@@ -206,6 +213,7 @@ fn (mut h  Handler) game_start(){
 	}
 		
 	h.game = true
+	eprintln("Game Started")
 }
 
 fn (mut h Handler) map_crea(){

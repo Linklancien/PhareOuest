@@ -8,14 +8,14 @@ added (serv){
     /action/move/u\d\l\r : bouger dans la direction et te tourne dans la direction (renvoie potentiellement si tu as fusionné les bigoudens)
     /action/shoot/index_pos  : shoot à la position qui est à l index index_pos dans l array des cases possibles à shoot du gun
     /alive/  -> te dis si t es mort,  à appeler après l action + Bigouden : points int -> indique la progression du bigouden (le client peut en déduire le tier)
-    /around_players/player_key : get les players dans ton champ de vision (plus petit quand y a la pluie) à appeler après l action
-    /around_items/player_key : get les items dans le champ de vision, à appeler après l action
     donner info de qui est premier joueur
 }
 
 améliorer map_crea()
 shoot() qui fonctionne
 faire pick()/action/pick/u\d\l\r : rammasser l item dans la direction (renvoie l objet rammassé si y en a un et ses caractéristiques)
+/around_players/player_key : get les players dans ton champ de vision (plus petit quand y a la pluie) à appeler après l action
+/around_items/player_key : get les items dans le champ de vision, à appeler après l action
 get les players dans ton champ de vision    Ennemy : x, y, bigou_points
 get les items dans le champ de vision
 
