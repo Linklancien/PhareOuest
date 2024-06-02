@@ -32,36 +32,35 @@ fn (mut h Handler) handle(req Request) Response {
 	match actions[1]{
 		'phareouest'{
 			match actions[2]{
-				"po"{
-					mut player_key := rand.string_from_set("azertyuiopqsdfghjklmwxcvbn", 8)
+				'po'{
+					mut player_key := rand.string_from_set('azertyuiopqsdfghjklmwxcvbn', 8)
 					for h.players_po_key.any(it == player_key){
-						player_key = rand.string_from_set("azertyuiopqsdfghjklmwxcvbn", 8)
+						player_key = rand.string_from_set('azertyuiopqsdfghjklmwxcvbn', 8)
 					}
 					h.players_po_key << player_key
 					res.body = player_key
 					if h.players_po_key.len == 1{
-						res.body += "/host"
+						res.body += '/host'
 					}
 					else{
-						res.body += "/not_host"
+						res.body += '/not_host'
 					}
 				}
-				"start"{
-					eprintln("Start?")
-					eprintln(actions[3])
-					eprintln(h.players_po_key[0])
+				'start'{
+					eprintln('Start?')
 					if actions[3] == h.players_po_key[0]{
 						h.game_start()
 					}
 				}
-				"wait_start"{
-					res.body = "${h.players_po_key.len}/${h.game}"
+				'wait_start'{
+					res.body = '${h.players_po_key.len}/${h.game}'
 				}
-				"map"{
-					res.body = "${h.world_map}"
+				'map'{
+					res.body = '${h.world_map}'
 				}
-				"spawn"{
+				'spawn'{
 					if actions[3] in h.players_in_game_key{
+						eprintln("Spawn ${actions[3]}")
 						player_cons_index := h.players[actions[3]]
 						if !h.players_in_game[player_cons_index].alive{
 								// Coor
@@ -71,96 +70,96 @@ fn (mut h Handler) handle(req Request) Response {
 								gun := [[2, 0], [-2, 0], [0, 2], [0, -2]]
 
 								h.players_in_game[player_cons_index] = Player{true, x, y, Orientations.up, 1, gun}
-								res.body = "${x}/${y}/${gun}"
+								res.body = '${x}/${y}/${gun}'
 								return res
 						}
 					}
 				}
-				"action"{
+				'action'{
 					if actions[3] in h.players_in_game_key{
 						player_index := h.players[actions[3]]
 						if h.players_in_game[h.players[actions[3]]].alive{
 							match actions[4]{
-								"move"{
+								'move'{
 									match actions[5]{
-										"right"{
-											h.players_in_game[player_index].x += 1
+										'right'{
+											h.players_in_game[player_index].x -= 1
 											h.players_in_game[player_index].orientation = Orientations.right
 										}
-										"left"{
-											h.players_in_game[player_index].x -= 1
+										'left'{
+											h.players_in_game[player_index].x += 1
 											h.players_in_game[player_index].orientation = Orientations.left
 										}
-										"down"{
-											h.players_in_game[player_index].y += 1
+										'down'{
+											h.players_in_game[player_index].y -= 1
 											h.players_in_game[player_index].orientation = Orientations.down
 										}
-										"up"{
-											h.players_in_game[player_index].y -= 1
+										'up'{
+											h.players_in_game[player_index].y += 1
 											h.players_in_game[player_index].orientation = Orientations.up
 										}
 										else{
 											status_code = 404
-											res.body = "Not found"
+											res.body = 'Not found'
 										}
 									}
 								}
-								"pick"{
+								'pick'{
 									match actions[5]{
-										"right"{
+										'right'{
 											
 										}
-										"left"{
+										'left'{
 											
 										}
-										"down"{
+										'down'{
 											
 										}
-										"up"{
+										'up'{
 											
 										}
 										else{
 											status_code = 404
-											res.body = "Not found"
+											res.body = 'Not found'
 										}
 									}
 								}
-								"shoot"{
+								'shoot'{
 									//shoot_pos := h.players_in_game[player_index].gun[actions[5].int()]
 								}
 								else{
 									status_code = 404
-									res.body = "Not found"
+									res.body = 'Not found'
 								}
 							}
 						}
 					}
 				}
-				"alive"{
+				'alive'{
 					if actions[3] in h.players_in_game_key{
 						if h.players_in_game[h.players[actions[3]]].alive{
-							res.body = "true/${h.players_in_game[h.players[actions[3]]].bigouden}"
+							res.body = 'true/${h.players_in_game[h.players[actions[3]]].bigouden}'
 						}
 						else{
-							res.body = "false"
+							res.body = 'false'
 						}
 					}
 				}
-				"around_players"{
+				'around_players'{
 					// get les players dans ton champ de vision (plus petit quand y a la pluie)
 				}
-				"around_items"{
+				'around_items'{
 					//get les items dans le champ de vision
 				}
 				else{
 					status_code = 404
-					res.body = "Not found"
+					res.body = 'Not found'
 				}
 			}
 		}
 		else{
 			status_code = 404
-			res.body = "Not found"
+			res.body = 'Not found'
 		}
 	}
 	res.status_code = status_code
@@ -168,9 +167,9 @@ fn (mut h Handler) handle(req Request) Response {
 }
 
 fn main() {
-	eprintln("server started")
+	eprintln('server started')
 	mut server := Server{
-		addr:":8100"
+		addr:':8100'
 		handler:  Handler{}
 	}
 	server.listen_and_serve()
@@ -197,7 +196,7 @@ fn (mut h  Handler) game_start(){
 	// Map
 	h.map_crea()
 	
-	eprintln("Map created")
+	eprintln('Map created')
 	// players
 	h.players_in_game_key = h.players_po_key
 	h.players_po_key	= []
@@ -213,11 +212,11 @@ fn (mut h  Handler) game_start(){
 	}
 		
 	h.game = true
-	eprintln("Game Started")
+	eprintln('Game Started')
 }
 
 fn (mut h Handler) map_crea(){
-	h.world_map = []string{len: 10, cap: 10, init: if index == 0 || index == 9 {"eeeeeeeeee"}else{"ehhhhhhhhe"}}
+	h.world_map = []string{len: 10, cap: 10, init: if index == 0 || index == 9 {'eeeeeeeeee'}else{'ehhhhhhhhe'}}
 }
 
 // fn (mut h Handler) game_end(){
