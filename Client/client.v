@@ -161,25 +161,25 @@ fn on_event(e &gg.Event, mut app App){
                     }
                 }
                 .right{
-                    if app.game{
+                    if app.game && app.player_is_alive{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/right') or {panic(err)}
                         app.player_pos[0] += 1
                     }
                 }
                 .left{
-                    if app.game{
+                    if app.game && app.player_is_alive{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/left') or {panic(err)}
                         app.player_pos[0] -= 1
                     }
                 }
                 .down{
-                    if app.game{
+                    if app.game && app.player_is_alive{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/down') or {panic(err)}
                         app.player_pos[1] += 1
                     }
                 }
                 .up{
-                    if app.game{
+                    if app.game && app.player_is_alive{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/up') or {panic(err)}
                         app.player_pos[1] -= 1
                     }
@@ -188,13 +188,15 @@ fn on_event(e &gg.Event, mut app App){
             }
         }
         .mouse_down{
-            match e.key_code{
+            match e.mouse_button{
                 .left{
+                    println('Left')
                     for index, pos_tir in app.player_gun{
                         x := coo_player_relative[0] - pos_tir[0]*tiles_size
                         y := coo_player_relative[1] - pos_tir[1]*tiles_size
                         if click_is_in_cube_center(x, y, tiles_size){
                             http.get(serv_url + 'phareouest/' + app.player_name + '/action/shoot/${index}') or {panic(err)}
+                            println('/action/shoot/${index}')
                         }
                     }
                 }
@@ -206,8 +208,8 @@ fn on_event(e &gg.Event, mut app App){
 }
 
 fn click_is_in_cube_center(x f32, y f32, arrete f64) bool{
-	if x <= arrete && -x <= arrete{
-        if y <= arrete && -y <= arrete{
+	if x <= arrete && x >= -arrete{
+        if y <= arrete && y >= -arrete{
 		    return true
         }
 	}
