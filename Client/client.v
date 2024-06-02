@@ -4,8 +4,8 @@ import net.http {get}
 
 const tiles_size    = 64
 const visu          = 5
-const win_width     = tiles_size*visu*2
-const win_height    = tiles_size*visu*2
+const win_width     = tiles_size*(visu*2 - 1)
+const win_height    = tiles_size*(visu*2 - 1)
 
 
 
@@ -42,7 +42,7 @@ fn main() {
         width: win_width
         height: win_height
         create_window: true
-        window_title: '- Application -'
+        window_title: '- Phare Ouest -'
         user_data: app
         bg_color: bg_color
         frame_fn: on_frame
@@ -60,6 +60,7 @@ fn on_frame(mut app App) {
         if app.player_is_alive{
             app.ctx.begin()
             app.map_render(255)
+            app.gun_render(150)
             app.ctx.draw_circle_filled(win_width/2, win_height/2, (tiles_size/2) - 10, gx.red)
             app.ctx.end()
 
@@ -112,28 +113,39 @@ fn on_frame(mut app App) {
 }
 
 fn (app App) map_render(transparence u8){
-    for y_view in -visu..visu{
-        if y_view + app.player_pos[1] < app.world_map.len && y_view + app.player_pos[1] > 0{
+    for y_view in -visu..(visu + 1){
+        if y_view + app.player_pos[1] < app.world_map.len && y_view + app.player_pos[1] >= 0{
             y := y_view + app.player_pos[1]
 
-            for x_view in -visu..visu{
-                if x_view + app.player_pos[0] < app.world_map[y].len && x_view + app.player_pos[1] > 0{
+            for x_view in -visu..(visu + 1){
+                if x_view + app.player_pos[0] < app.world_map[y].len && x_view + app.player_pos[0] >= 0{
                     x := x_view + app.player_pos[0]
 
                     mut color := gx.Color{}
                     if app.world_map[y][x].ascii_str() == 'e'{
-                        color = gx.Color{0, 0, 255, transparence}
+                        color = gx.Color{0, 0, 100, transparence}
                     }
                     else if app.world_map[y][x].ascii_str() == 'h'{
-                        color = gx.Color{0, 255, 0, transparence}
+                        color = gx.Color{0, 100, 0, transparence}
                     }
-                    x_pos := y_view*tiles_size + win_width/2
-                    y_pos := y_view*tiles_size + win_height/2
+                    x_pos := x_view*tiles_size + win_width/2    - 3*tiles_size/2
+                    y_pos := y_view*tiles_size + win_height/2   - tiles_size/2
                     
                     app.ctx.draw_square_filled(x_pos, y_pos, tiles_size, color)
+                    app.ctx.draw_square_empty(x_pos, y_pos, tiles_size, gx.black)
                 }
             }
         }
+    }
+}
+
+fn (app App) gun_render(transparence u8){
+    color := gx.Color{200, 0, 0, transparence}
+    for coos in app.player_gun{
+        x_pos := coos[0]*tiles_size + win_width/2    - tiles_size/2
+        y_pos := coos[1]*tiles_size + win_height/2   - tiles_size/2
+
+        app.ctx.draw_square_filled(x_pos, y_pos, tiles_size, color)
     }
 }
 
@@ -151,29 +163,25 @@ fn on_event(e &gg.Event, mut app App){
                 .right{
                     if app.game{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/right') or {panic(err)}
-                        app.player_pos[0] -= 1
-                        println(app.player_pos)
+                        app.player_pos[0] += 1
                     }
                 }
                 .left{
                     if app.game{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/left') or {panic(err)}
-                        app.player_pos[0] += 1
-                        println(app.player_pos)
+                        app.player_pos[0] -= 1
                     }
                 }
                 .down{
                     if app.game{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/down') or {panic(err)}
-                        app.player_pos[1] -= 1
-                        println(app.player_pos)
+                        app.player_pos[1] += 1
                     }
                 }
                 .up{
                     if app.game{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/up') or {panic(err)}
-                        app.player_pos[1] += 1
-                        println(app.player_pos)
+                        app.player_pos[1] -= 1
                     }
                 }
                 else {}

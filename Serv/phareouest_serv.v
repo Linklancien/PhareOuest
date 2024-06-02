@@ -83,19 +83,19 @@ fn (mut h Handler) handle(req Request) Response {
 								'move'{
 									match actions[5]{
 										'right'{
-											h.players_in_game[player_index].x -= 1
+											h.players_in_game[player_index].x += 1
 											h.players_in_game[player_index].orientation = Orientations.right
 										}
 										'left'{
-											h.players_in_game[player_index].x += 1
+											h.players_in_game[player_index].x -= 1
 											h.players_in_game[player_index].orientation = Orientations.left
 										}
 										'down'{
-											h.players_in_game[player_index].y -= 1
+											h.players_in_game[player_index].y += 1
 											h.players_in_game[player_index].orientation = Orientations.down
 										}
 										'up'{
-											h.players_in_game[player_index].y += 1
+											h.players_in_game[player_index].y -= 1
 											h.players_in_game[player_index].orientation = Orientations.up
 										}
 										else{
