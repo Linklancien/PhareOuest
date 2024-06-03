@@ -17,6 +17,7 @@ struct  Handler {
 		
 		// Map
 		world_map	[]string
+		visu		int = 5
 }
 
 fn (mut h Handler) handle(req Request) Response {
@@ -60,16 +61,20 @@ fn (mut h Handler) handle(req Request) Response {
 				}
 				'spawn'{
 					if actions[3] in h.players_in_game_key{
-						eprintln("Spawn ${actions[3]}")
+						eprintln("Spawn ${actions[3]} as ${actions[4]}")
 						player_cons_index := h.players[actions[3]]
 						if !h.players_in_game[player_cons_index].alive{
 								// Coor
-								x := rand.int_in_range(0, 10) or {0}
-								y := rand.int_in_range(0, 10) or {0}
+								mut x := rand.int_in_range(0, 10) or {0}
+								mut y := rand.int_in_range(0, 10) or {0}
+								for !h.check_death(x, y){
+									x = rand.int_in_range(0, 10) or {0}
+									y = rand.int_in_range(0, 10) or {0}
+								}
 
 								gun := [[2, 0], [-2, 0], [0, 2], [0, -2]]
 
-								h.players_in_game[player_cons_index] = Player{true, x, y, Orientations.up, 1, gun}
+								h.players_in_game[player_cons_index] = Player{actions[4], true, x, y, Orientations.up, 1, gun}
 								res.body = '${x}/${y}/${gun}'
 								return res
 						}
@@ -113,6 +118,7 @@ fn (mut h Handler) handle(req Request) Response {
 										else{
 											status_code = 404
 											res.body = 'Not found'
+											eprintln("Bad move ${actions[5]}")
 										}
 									}
 								}
@@ -137,9 +143,14 @@ fn (mut h Handler) handle(req Request) Response {
 									}
 								}
 								'shoot'{
-									// shoot_pos := h.players_in_game[player_index].gun[actions[5].int()]
-									// x := shoot_pos[0] + h.players_in_game[player_index].x
-									// y := shoot_pos[1] + h.players_in_game[player_index].y
+									shoot_pos := h.players_in_game[player_index].gun[actions[5].int()]
+									x := shoot_pos[0] + h.players_in_game[player_index].x
+									y := shoot_pos[1] + h.players_in_game[player_index].y
+									for mut player in h.players_in_game{
+										if player.x == x && player.y == y{
+											player.alive = false
+										}
+									}
 								}
 								else{
 									status_code = 404
@@ -160,7 +171,29 @@ fn (mut h Handler) handle(req Request) Response {
 					}
 				}
 				'around_players'{
-					// get les players dans ton champ de vision (plus petit quand y a la pluie)
+					if actions[3] in h.players_in_game_key{
+						player_pos_x	:= h.players_in_game[h.players[actions[3]]].x
+						player_pos_y	:= h.players_in_game[h.players[actions[3]]].y
+						for y_view in -h.visu..(h.visu + 1){
+							y := y_view + player_pos_y
+
+							for x_view in -h.visu..(h.visu + 1){
+								x := x_view + player_pos_x
+
+								for index, player in h.players_in_game{
+									if player.x == x && player.y == y && index != h.players[actions[3]]{
+										if res.body.len == 0{
+											res.body = "${x_view}, ${y_view}, ${player.name}"
+										}
+										else{
+											res.body += "/${x_view}, ${y_view}, ${player.name}"
+										}
+										
+									}
+								}
+							}
+						}
+					}						
 				}
 				'around_items'{
 					//get les items dans le champ de vision
@@ -168,12 +201,14 @@ fn (mut h Handler) handle(req Request) Response {
 				else{
 					status_code = 404
 					res.body = 'Not found'
+					eprintln("Bad instruction: ${actions[2]}")
 				}
 			}
 		}
 		else{
 			status_code = 404
 			res.body = 'Not found'
+			eprintln("Bad game instruction: ${actions[1]}")
 		}
 	}
 	res.status_code = status_code
@@ -195,7 +230,10 @@ fn (h Handler) check_death(x int, y int) bool{
 			if x < h.world_map[y].len{
 				if h.world_map[y][x].ascii_str() == "e"{
 					return false
-				} else {eprintln(h.world_map[y][x].ascii_str())}
+				} 
+				else if h.world_map[y][x].ascii_str() != "h"{
+					eprintln(h.world_map[y][x].ascii_str())
+				}
 			}
 		}
 	}
@@ -204,6 +242,7 @@ fn (h Handler) check_death(x int, y int) bool{
 
 struct Player {
 	mut:
+		name		string
 		alive		bool
 		x			int
 		y			int
@@ -243,7 +282,7 @@ fn (mut h  Handler) game_start(){
 }
 
 fn (mut h Handler) map_crea(){
-	h.world_map = []string{len: 10, cap: 10, init: if index == 0 || index == 9 {'eeeeeeeeee'}else{'ehhhhhhhhe'}}
+	h.world_map = []string{len: 10, cap: 10, init: if index == 0 || index == 9 {'eeeeeeeeee'}else if index%3 == 0{'eehhhhhhee'}else{'ehhhhhhhhe'}}
 }
 
 // fn (mut h Handler) game_end(){
