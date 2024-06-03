@@ -27,7 +27,8 @@ mut:
     game			bool
 
     world_map       []string
-    player_pos      []int   = [0, 0]
+    player_pos_x    int
+    player_pos_y    int
     player_gun      [][]int
     player_is_alive bool
     player_bigouden int
@@ -77,7 +78,8 @@ fn on_frame(mut app App) {
         else{
             res := http.get(serv_url + 'phareouest/spawn/' + app.player_key) or {panic(err)}
             res_body := res.body.split('/')
-            app.player_pos = [res_body[0].int(), res_body[1].int()]
+            app.player_pos_x = res_body[0].int()
+            app.player_pos_y = res_body[1].int()
             // res_body[2] -> player gun
             app.player_gun = [[2, 0], [-2, 0], [0, 2], [0, -2]]
             app.player_is_alive = true
@@ -114,12 +116,12 @@ fn on_frame(mut app App) {
 
 fn (app App) map_render(transparence u8){
     for y_view in -visu..(visu + 1){
-        if y_view + app.player_pos[1] < app.world_map.len && y_view + app.player_pos[1] >= 0{
-            y := y_view + app.player_pos[1]
+        if y_view + app.player_pos_y < app.world_map.len && y_view + app.player_pos_y >= 0{
+            y := y_view + app.player_pos_y
 
             for x_view in -visu..(visu + 1){
-                if x_view + app.player_pos[0] < app.world_map[y].len && x_view + app.player_pos[0] >= 0{
-                    x := x_view + app.player_pos[0]
+                if x_view + app.player_pos_x < app.world_map[y].len && x_view + app.player_pos_x >= 0{
+                    x := x_view + app.player_pos_x
 
                     mut color := gx.Color{}
                     if app.world_map[y][x].ascii_str() == 'e'{
@@ -163,25 +165,25 @@ fn on_event(e &gg.Event, mut app App){
                 .right{
                     if app.game && app.player_is_alive{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/right') or {panic(err)}
-                        app.player_pos[0] += 1
+                        app.player_pos_x += 1
                     }
                 }
                 .left{
                     if app.game && app.player_is_alive{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/left') or {panic(err)}
-                        app.player_pos[0] -= 1
+                        app.player_pos_x -= 1
                     }
                 }
                 .down{
                     if app.game && app.player_is_alive{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/down') or {panic(err)}
-                        app.player_pos[1] += 1
+                        app.player_pos_y += 1
                     }
                 }
                 .up{
                     if app.game && app.player_is_alive{
                         http.get(serv_url + 'phareouest/' + app.player_name + '/action/up') or {panic(err)}
-                        app.player_pos[1] -= 1
+                        app.player_pos_y -= 1
                     }
                 }
                 else {}

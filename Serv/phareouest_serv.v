@@ -125,7 +125,9 @@ fn (mut h Handler) handle(req Request) Response {
 									}
 								}
 								'shoot'{
-									//shoot_pos := h.players_in_game[player_index].gun[actions[5].int()]
+									// shoot_pos := h.players_in_game[player_index].gun[actions[5].int()]
+									// x := shoot_pos[0] + h.players_in_game[player_index].x
+									// y := shoot_pos[1] + h.players_in_game[player_index].y
 								}
 								else{
 									status_code = 404
