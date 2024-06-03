@@ -80,8 +80,19 @@ fn on_frame(mut app App) {
             res_body := res.body.split('/')
             app.player_pos_x = res_body[0].int()
             app.player_pos_y = res_body[1].int()
+
+            app.player_gun = []
             // res_body[2] -> player gun
-            app.player_gun = [[2, 0], [-2, 0], [0, 2], [0, -2]]
+            // ex res_body[2] ->  "[[2, 0], [-2, 0], [0, 2], [0, -2]]"
+            mut gun_tempo := res.body.split("], [")
+            // ex gun_tempo ->  ["[[2, 0", "-2, 0", "0, 2", "0, -2]]"]
+            gun_tempo[0] = gun_tempo[0][2..]
+            gun_tempo[gun_tempo.len - 1] = gun_tempo[gun_tempo.len - 1][..gun_tempo[gun_tempo.len - 1].len - 2]
+            // ex gun_tempo ->  ["2, 0", "-2, 0", "0, 2", "0, -2"]
+            for att in gun_tempo{
+                att_split := att.split(", ")
+                app.player_gun << [att_split[0].int(), att_split[1].int()]
+            }
             app.player_is_alive = true
 
             app.ctx.begin()
