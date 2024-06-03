@@ -9,7 +9,7 @@ const win_height    = tiles_size*(visu*2 - 1)
 
 
 
-const bg_color     = gg.Color{}
+const bg_color     = gg.Color{0, 0, 100, 255}
 
 const serv_url     = 'http://93.23.133.25:8100/'
 
@@ -63,17 +63,11 @@ fn on_frame(mut app App) {
             app.map_render(255)
             app.gun_render(150)
             app.ctx.draw_circle_filled(win_width/2, win_height/2, (tiles_size/2) - 10, gx.red)
+            app.ctx.show_fps()
             app.ctx.end()
 
             // Check if alive
-            res := http.get(serv_url + 'phareouest/alive/' + app.player_key) or {panic(err)}
-            res_body := res.body.split('/')
-            if res_body[0] == 'true'{
-                app.player_bigouden = res_body[0].int()
-            }
-            else{
-                app.player_is_alive = false
-            }
+            app.is_alive()
         }
         else{
             res := http.get(serv_url + 'phareouest/spawn/' + app.player_key) or {panic(err)}
@@ -84,7 +78,8 @@ fn on_frame(mut app App) {
             app.player_gun = []
             // res_body[2] -> player gun
             // ex res_body[2] ->  "[[2, 0], [-2, 0], [0, 2], [0, -2]]"
-            mut gun_tempo := res.body.split("], [")
+            
+            mut gun_tempo := res_body[2].split("], [")
             // ex gun_tempo ->  ["[[2, 0", "-2, 0", "0, 2", "0, -2]]"]
             gun_tempo[0] = gun_tempo[0][2..]
             gun_tempo[gun_tempo.len - 1] = gun_tempo[gun_tempo.len - 1][..gun_tempo[gun_tempo.len - 1].len - 2]
@@ -97,6 +92,7 @@ fn on_frame(mut app App) {
 
             app.ctx.begin()
             app.map_render(150)
+            app.ctx.show_fps()
             app.ctx.end()
         }
     }
@@ -112,14 +108,13 @@ fn on_frame(mut app App) {
         res         := http.get(serv_url + 'phareouest/wait_start') or {panic(err)}
         res_body    := res.body.split('/')
         nb_player   := res_body[0]
-        println(nb_player)
-        println(app.host)
         if res_body[1] == 'true'{
             app.game = true
             res_map := http.get(serv_url + 'phareouest/map') or {panic(err)}
-            mut map_tempo := res_map.body.split(", ")
-            map_tempo[0] = map_tempo[0][1..]
-            map_tempo[map_tempo.len - 1] = map_tempo[map_tempo.len - 1][..map_tempo[map_tempo.len - 1].len - 1]
+            mut map_tempo := res_map.body.split("', '")
+            println(map_tempo)
+            map_tempo[0] = map_tempo[0][2..]
+            map_tempo[map_tempo.len - 1] = map_tempo[map_tempo.len - 1][..map_tempo[map_tempo.len - 1].len - 2]
             app.world_map = map_tempo
         }
     }
@@ -134,14 +129,15 @@ fn (app App) map_render(transparence u8){
                 if x_view + app.player_pos_x < app.world_map[y].len && x_view + app.player_pos_x >= 0{
                     x := x_view + app.player_pos_x
 
-                    mut color := gx.Color{}
+                    mut color := gx.Color{100, 0, 0, transparence}
                     if app.world_map[y][x].ascii_str() == 'e'{
                         color = gx.Color{0, 0, 100, transparence}
                     }
                     else if app.world_map[y][x].ascii_str() == 'h'{
                         color = gx.Color{0, 100, 0, transparence}
                     }
-                    x_pos := x_view*tiles_size + win_width/2    - 3*tiles_size/2
+                    else {println( app.world_map[y][x].ascii_str())}
+                    x_pos := x_view*tiles_size + win_width/2    - tiles_size/2
                     y_pos := y_view*tiles_size + win_height/2   - tiles_size/2
                     
                     app.ctx.draw_square_filled(x_pos, y_pos, tiles_size, color)
@@ -149,6 +145,17 @@ fn (app App) map_render(transparence u8){
                 }
             }
         }
+    }
+}
+
+fn (mut app App) is_alive(){
+    res := http.get(serv_url + 'phareouest/alive/' + app.player_key) or {panic(err)}
+    res_body := res.body.split('/')
+    if res_body[0] == 'true'{
+        app.player_bigouden = res_body[1].int()
+    }
+    else{
+        app.player_is_alive = false
     }
 }
 
@@ -175,26 +182,26 @@ fn on_event(e &gg.Event, mut app App){
                 }
                 .right{
                     if app.game && app.player_is_alive{
-                        http.get(serv_url + 'phareouest/' + app.player_name + '/action/right') or {panic(err)}
                         app.player_pos_x += 1
+                        spawn http.get(serv_url + 'phareouest/' + app.player_name + '/action/right')
                     }
                 }
                 .left{
                     if app.game && app.player_is_alive{
-                        http.get(serv_url + 'phareouest/' + app.player_name + '/action/left') or {panic(err)}
                         app.player_pos_x -= 1
+                        spawn http.get(serv_url + 'phareouest/' + app.player_name + '/action/left')
                     }
                 }
                 .down{
                     if app.game && app.player_is_alive{
-                        http.get(serv_url + 'phareouest/' + app.player_name + '/action/down') or {panic(err)}
                         app.player_pos_y += 1
+                        spawn http.get(serv_url + 'phareouest/' + app.player_name + '/action/down')
                     }
                 }
                 .up{
                     if app.game && app.player_is_alive{
-                        http.get(serv_url + 'phareouest/' + app.player_name + '/action/up') or {panic(err)}
                         app.player_pos_y -= 1
+                        spawn http.get(serv_url + 'phareouest/' + app.player_name + '/action/up')
                     }
                 }
                 else {}

@@ -85,18 +85,30 @@ fn (mut h Handler) handle(req Request) Response {
 										'right'{
 											h.players_in_game[player_index].x += 1
 											h.players_in_game[player_index].orientation = Orientations.right
+											x := h.players_in_game[player_index].x
+											y := h.players_in_game[player_index].y
+											h.players_in_game[player_index].alive = h.check_death(x, y)
 										}
 										'left'{
 											h.players_in_game[player_index].x -= 1
 											h.players_in_game[player_index].orientation = Orientations.left
+											x := h.players_in_game[player_index].x
+											y := h.players_in_game[player_index].y
+											h.players_in_game[player_index].alive = h.check_death(x, y)
 										}
 										'down'{
 											h.players_in_game[player_index].y += 1
 											h.players_in_game[player_index].orientation = Orientations.down
+											x := h.players_in_game[player_index].x
+											y := h.players_in_game[player_index].y
+											h.players_in_game[player_index].alive = h.check_death(x, y)
 										}
 										'up'{
 											h.players_in_game[player_index].y -= 1
 											h.players_in_game[player_index].orientation = Orientations.up
+											x := h.players_in_game[player_index].x
+											y := h.players_in_game[player_index].y
+											h.players_in_game[player_index].alive = h.check_death(x, y)
 										}
 										else{
 											status_code = 404
@@ -143,7 +155,7 @@ fn (mut h Handler) handle(req Request) Response {
 							res.body = 'true/${h.players_in_game[h.players[actions[3]]].bigouden}'
 						}
 						else{
-							res.body = 'false'
+							res.body = 'false/1'
 						}
 					}
 				}
@@ -175,6 +187,19 @@ fn main() {
 		handler:  Handler{}
 	}
 	server.listen_and_serve()
+}
+
+fn (h Handler) check_death(x int, y int) bool{
+	if 0 <= x && 0 <= y{
+		if y < h.world_map.len{
+			if x < h.world_map[y].len{
+				if h.world_map[y][x].ascii_str() == "e"{
+					return false
+				} else {eprintln(h.world_map[y][x].ascii_str())}
+			}
+		}
+	}
+	return true
 }
 
 struct Player {
