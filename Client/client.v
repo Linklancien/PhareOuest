@@ -78,7 +78,7 @@ fn on_frame(mut app App) {
 			app.gun_render(transparence - 100)
             app.ennemies_render(transparence)
 			app.ctx.draw_circle_filled(win_width / 2, win_height / 2, (tiles_size / 2) - 10, attenuation(gx.red, transparence))
-            app.ctx.draw_text(win_width / 2, win_height / 2 - tiles_size / 2, '${app.player_name}', gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
+			app.text_rect_render(win_width / 2, (win_height- tiles_size)/ 2, '${app.player_name}', transparence - 100)
 			
 			app.ctx.show_fps()
 
@@ -87,7 +87,8 @@ fn on_frame(mut app App) {
 			if app.i % 10 == 0 {
 			    app.is_alive()
             }
-		} else {
+		}
+		else {
             res := get(serv_url + 'phareouest/spawn/' + app.player_key +"/"+ app.player_name) or { panic(err) }
             res_body := res.body.split('/')
             app.player_pos_x = res_body[0].int()
@@ -115,20 +116,24 @@ fn on_frame(mut app App) {
 			app.ctx.show_fps()
 
 		}
-	} else if app.player_key == '' {
+	}
+	else if app.player_key == '' {
+		// Ask for a key & being place in the queue
 		res := get(serv_url + 'phareouest/po') or { panic(err) }
 		res_body := res.body.split('/')
 		app.player_key = res_body[0]
 		if res_body[1] == 'host' {
 			app.host = true
 		}
-	} else {
+	}
+	else {
+		// Render the lobby
 		res := get(serv_url + 'phareouest/wait_start') or { panic(err) }
 		res_body := res.body.split('/')
 		nb_player := res_body[0]
 
 		app.ctx.show_fps()
-		app.ctx.draw_text(win_width / 2, win_height / 2, 'Nb players : ${nb_player}', gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
+		app.text_rect_render(win_width / 2, win_height / 2, 'Nb players : ${nb_player}', transparence)
 		
 		if res_body[1] == 'true' {
 			app.game = true
