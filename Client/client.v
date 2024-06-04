@@ -80,12 +80,13 @@ fn on_frame(mut app App) {
 			app.gun_render(transparence - 100)
             app.ennemies_render(transparence)
 			app.ctx.draw_circle_filled(win_width / 2, win_height / 2, (tiles_size / 2) - 10, attenuation(gx.red, transparence))
-			app.text_rect_render(win_width / 2, (win_height- tiles_size)/ 2, '${app.player_name}', transparence - 100)
+			app.text_rect_render(win_width / 2, (win_height- tiles_size)/ 2, '${app.player_name} B:${app.player_bigouden}', transparence - 100)
 			
 			app.ctx.show_fps()
 
 			// Check if alive
-			app.is_alive()
+			spawn app.is_alive()
+		}
 		else {
             res := get(serv_url + 'phareouest/spawn/' + app.player_key +"/"+ app.player_name) or { panic(err) }
             res_body := res.body.split('/')
@@ -108,11 +109,9 @@ fn on_frame(mut app App) {
                 app.player_gun << [att_split[0].int(), att_split[1].int()]
             }
             app.player_is_alive = true
-            app.i = 0
 
 			app.map_render(transparence - 100)
 			app.ctx.show_fps()
-
 		}
 	}
 	else if app.player_key == '' {
@@ -236,7 +235,8 @@ fn on_event(e &gg.Event, mut app App) {
 							x := coo_player_relative[0] - pos_tir[0] * tiles_size
 							y := coo_player_relative[1] - pos_tir[1] * tiles_size
 							if click_is_in_square_center(x, y, tiles_size) {
-								get(serv_url + 'phareouest/action/shoot/' + app.player_key + '/${index}') or { panic(err) }
+								spawn get(serv_url + 'phareouest/action/shoot/' + app.player_key + '/${index}')
+								break
 							}	
 						}
 					}
