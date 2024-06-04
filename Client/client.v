@@ -42,8 +42,6 @@ mut:
 	player_bigouden int
 
 	ennemies        []string
-
-	i int
 }
 
 fn main() {
@@ -87,11 +85,7 @@ fn on_frame(mut app App) {
 			app.ctx.show_fps()
 
 			// Check if alive
-            app.i += 1
-			if app.i % 10 == 0 {
-			    app.is_alive()
-            }
-		}
+			app.is_alive()
 		else {
             res := get(serv_url + 'phareouest/spawn/' + app.player_key +"/"+ app.player_name) or { panic(err) }
             res_body := res.body.split('/')

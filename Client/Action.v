@@ -253,8 +253,8 @@ fn (mut app App) imput_action(index int){
 						enn := enn_pos.split(", ")
 						enn_pos = "${enn[0].int() + 1}, "+ enn[1] +", "+ enn[2]
 					}
-					spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/right')
 				}
+				spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/right')
 			}
 		}
 		.move_left {
@@ -265,8 +265,8 @@ fn (mut app App) imput_action(index int){
 						enn := enn_pos.split(", ")
 						enn_pos = "${enn[0].int() - 1}, "+ enn[1] +", "+ enn[2]
 					}
-					spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/left')
 				}
+				spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/left')
 			}
 		}
 		.move_down {
@@ -277,8 +277,8 @@ fn (mut app App) imput_action(index int){
 						enn := enn_pos.split(", ")
 						enn_pos = enn[0] +", ${enn[1].int() + 1}, "+ enn[2]
 					}
-					spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/down')
 				}
+				spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/down')
 			}
 		}
 		.move_up {
@@ -289,8 +289,8 @@ fn (mut app App) imput_action(index int){
 						enn := enn_pos.split(", ")
 						enn_pos = enn[0] +", ${enn[1].int() - 1}, "+ enn[2]
 					}
-					spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/up')
 				}
+				spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/up')
 			}
 		}
 		else{}
