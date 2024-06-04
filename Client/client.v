@@ -4,6 +4,7 @@ import net.http { get }
 import os
 
 const tiles_size = 64
+const espacement = 64
 const visu = 5
 const win_width = tiles_size * (visu * 2 - 1)
 const win_height = tiles_size * (visu * 2 - 1)
@@ -136,10 +137,14 @@ fn on_frame(mut app App) {
 		nb_player := res_body[0]
 
 		app.ctx.show_fps()
-		app.text_rect_render(win_width / 2, win_height / 2, 'Nb players : ${nb_player}', transparence)
+		
 		if app.host{
-			app.text_rect_render(win_width / 2, (win_height + tiles_size)/ 2, 'You are the HOST', transparence)
-			app.text_rect_render(win_width / 2, win_height/ 2 + tiles_size, "Press " + key_code_name[app.list_action_key_code[Actions.start]], transparence)
+			app.text_rect_render(win_width / 2, (win_height - espacement)/ 2, 'Nb players : ${nb_player}', transparence)
+			app.text_rect_render(win_width / 2, win_height/ 2, 'You are the HOST', transparence)
+			app.text_rect_render(win_width / 2, (win_height + espacement)/ 2, "Press " + key_code_name[app.list_action_key_code[Actions.start]], transparence)
+		}
+		else{
+			app.text_rect_render(win_width / 2, win_height / 2, 'Nb players : ${nb_player}', transparence)
 		}
 		
 		if res_body[1] == 'true' {
