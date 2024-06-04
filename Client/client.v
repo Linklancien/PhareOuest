@@ -55,8 +55,10 @@ fn on_frame(mut app App) {
 	//
 	if app.game {
 		if app.player_is_alive {
+			// Ennemies 
+			res := get(serv_url + 'phareouest/around_players/' + app.player_key) or { panic(err) }
+			app.ennemies = res.body.split('/')
             
-
 			app.ctx.begin()
 			app.map_render(255)
 			app.gun_render(150)
@@ -70,9 +72,7 @@ fn on_frame(mut app App) {
             app.i += 1
 			if app.i % 10 == 0 {
 			    app.is_alive()
-                // Ennemies 
-                res := get(serv_url + 'phareouest/around_players/' + app.player_key) or { panic(err) }
-                app.ennemies = res.body.split('/')
+                
             }
 		} else {
             res := get(serv_url + 'phareouest/spawn/' + app.player_key +"/"+ app.player_name) or { panic(err) }
@@ -131,13 +131,13 @@ fn on_frame(mut app App) {
 
 fn (app App) map_render(transparence u8) {
 	for y_view in -visu .. (visu + 1) {
-		if y_view + app.player_pos_y < app.world_map.len && y_view + app.player_pos_y >= 0 {
-			y := y_view + app.player_pos_y
+		y := y_view + app.player_pos_y
+		if y < app.world_map.len && y >= 0 {
 
 			for x_view in -visu .. (visu + 1) {
-				if x_view + app.player_pos_x < app.world_map[y].len
-					&& x_view + app.player_pos_x >= 0 {
-					x := x_view + app.player_pos_x
+				x := x_view + app.player_pos_x
+				if x < app.world_map[y].len && x >= 0 {
+					
 
 					mut color := gx.Color{100, 0, 0, transparence}
 					if app.world_map[y][x].ascii_str() == 'e' {
@@ -179,15 +179,16 @@ fn (app App) gun_render(transparence u8) {
 }
 
 fn (app App) ennemies_render(transparence u8) {
-	color := gx.Color{255, 0, 0, transparence}
-    if app.ennemies.len > 1{
+	color := gx.Color{238, 130, 238, transparence}
+    if app.ennemies.len > 0{
         for ennemie in app.ennemies {
             enn := ennemie.split(", ")
-            x_pos := enn[0].int() * tiles_size + win_width / 2 - tiles_size / 2
-            y_pos := enn[1].int() * tiles_size + win_height / 2 - tiles_size / 2
+			println(enn)
+            x_pos := enn[0].int() * tiles_size + win_width / 2
+            y_pos := enn[1].int() * tiles_size + win_height / 2
 
-            app.ctx.draw_square_filled(x_pos, y_pos, tiles_size, color)
-            app.ctx.draw_text(x_pos, y_pos, enn[2], gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
+            app.ctx.draw_circle_filled(x_pos, y_pos, (tiles_size / 2) - 10, color)
+            app.ctx.draw_text(x_pos, y_pos  - tiles_size / 2, enn[2], gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
         }
     }
 }
