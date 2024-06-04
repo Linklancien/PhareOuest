@@ -217,11 +217,16 @@ fn on_event(e &gg.Event, mut app App) {
 		.mouse_down {
 			match e.mouse_button {
 				.left {
-					for index, pos_tir in app.player_gun {
-						x := coo_player_relative[0] - pos_tir[0] * tiles_size
-						y := coo_player_relative[1] - pos_tir[1] * tiles_size
-						if click_is_in_cube_center(x, y, tiles_size) {
-							get(serv_url + 'phareouest/action/shoot/' + app.player_key + '/${index}') or { panic(err) }
+					if app.pause{
+						app.pause_check_boutons(e.mouse_x, e.mouse_y)
+					}
+					else{
+						for index, pos_tir in app.player_gun {
+							x := coo_player_relative[0] - pos_tir[0] * tiles_size
+							y := coo_player_relative[1] - pos_tir[1] * tiles_size
+							if click_is_in_square_center(x, y, tiles_size) {
+								get(serv_url + 'phareouest/action/shoot/' + app.player_key + '/${index}') or { panic(err) }
+							}	
 						}
 					}
 				}
@@ -232,7 +237,7 @@ fn on_event(e &gg.Event, mut app App) {
 	}
 }
 
-fn click_is_in_cube_center(x f32, y f32, arrete f64) bool {
+fn click_is_in_square_center(x f32, y f32, arrete f64) bool {
 	if x <= arrete/2 && x >= -arrete/2 {
 		if y <= arrete/2 && y >= -arrete/2 {
 			return true

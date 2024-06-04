@@ -4,6 +4,7 @@ import net.http { get }
 
 const actions_names = ["None", "Quit the game", "Start the game", "pause", "move down", "move up", "move right", "move left"]
 const boutons_radius = 10
+const boutons_radius_square = boutons_radius*boutons_radius
 
 enum Actions {
 	no				= 0
@@ -175,6 +176,36 @@ fn (mut app App) list_imput_action_key_code_init(){
 	app.list_action_key_code[7] = left
 }
 
+fn (mut app App) settings_render(){
+	for ind in 1..10{
+		if ind + app.pause_scroll < actions_names.len {
+			x := int(win_width/2)
+			y := int(100 + ind * 40)
+			app.text_rect_render(x, y, (actions_names[ind + app.pause_scroll] + ": " + key_code_name[app.list_action_key_code[ind + app.pause_scroll]]), 255)
+
+			x2 := int(3*win_width/4)
+			app.ctx.draw_circle_filled(x2, y + 15, boutons_radius, gx.gray)
+		}
+	}
+}
+
+// Actions
+fn (mut app App) pause_check_boutons(mouse_x f32, mouse_y f32){
+	// Check
+	x_square := (3*win_width/4 - mouse_x)*(3*win_width/4 - mouse_x)
+	pre_y := 115 - mouse_y
+	for ind in 1..10{
+		if ind + app.pause_scroll < actions_names.len {
+			y := pre_y + ind * 40 
+			
+			if x_square + y*y < boutons_radius_square{
+				app.imput_action_change = unsafe{Actions(ind + app.pause_scroll)}
+				break
+			}
+		}
+	}
+}
+
 fn (mut app App) imput(index int){
 	if app.imput_action_change == Actions.no{
 		app.imput_action(index)
@@ -197,19 +228,6 @@ fn (mut app App) imput(index int){
 
 		// Reset imput_action_change
 		app.imput_action_change = Actions.no
-	}
-}
-
-fn (mut app App) settings_render(){
-	for ind in 1..10{
-		if ind + app.pause_scroll < actions_names.len {
-			x := int(win_width/2)
-			y := int(100 + ind * 40)
-			app.text_rect_render(x, y, (actions_names[ind + app.pause_scroll] + ": " + key_code_name[app.list_action_key_code[ind + app.pause_scroll]]), 255)
-
-			x2 := int(3*win_width/4)
-			app.ctx.draw_circle_filled(x2, y + 15, boutons_radius, gx.gray)
-		}
 	}
 }
 
@@ -280,6 +298,7 @@ fn (mut app App) imput_action(index int){
 	
 }
 
+// Others fonctions
 fn (app App) text_rect_render(x int, y int, text string, transparence u8){
 	lenght := text.len * app.text_cfg.size/2
 	new_x := x - lenght/2
