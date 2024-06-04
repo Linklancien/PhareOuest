@@ -20,6 +20,16 @@ mut:
 
 	host bool
 	game bool
+	
+	// Pause
+	pause			bool
+	pause_scroll	int
+	text_cfg	gx.TextCfg
+	
+	// imput_action
+	list_imput_action		[]Actions
+	list_action_key_code	[]int
+	imput_action_change		Actions
 
 	world_map       []string
 	player_pos_x    int
@@ -48,32 +58,34 @@ fn main() {
 	)
 
 	// lancement du programme/de la fenêtre
+	app.list_imput_action_key_code_init()
 	app.ctx.run()
 }
 
 fn on_frame(mut app App) {
-	//
+	mut transparence := u8(255)
+	app.ctx.begin()
+	if app.pause{
+		transparence = 150
+	}
 	if app.game {
 		if app.player_is_alive {
 			// Ennemies 
 			res := get(serv_url + 'phareouest/around_players/' + app.player_key) or { panic(err) }
 			app.ennemies = res.body.split('/')
             
-			app.ctx.begin()
-			app.map_render(255)
-			app.gun_render(150)
-            app.ennemies_render(255)
-			app.ctx.draw_circle_filled(win_width / 2, win_height / 2, (tiles_size / 2) - 10, gx.red)
+			app.map_render(transparence)
+			app.gun_render(transparence - 100)
+            app.ennemies_render(transparence)
+			app.ctx.draw_circle_filled(win_width / 2, win_height / 2, (tiles_size / 2) - 10, attenuation(gx.red, transparence))
             app.ctx.draw_text(win_width / 2, win_height / 2 - tiles_size / 2, '${app.player_name}', gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
 			
 			app.ctx.show_fps()
-			app.ctx.end()
 
 			// Check if alive
             app.i += 1
 			if app.i % 10 == 0 {
 			    app.is_alive()
-                
             }
 		} else {
             res := get(serv_url + 'phareouest/spawn/' + app.player_key +"/"+ app.player_name) or { panic(err) }
@@ -99,10 +111,9 @@ fn on_frame(mut app App) {
             app.player_is_alive = true
             app.i = 0
 
-			app.ctx.begin()
-			app.map_render(150)
+			app.map_render(transparence - 100)
 			app.ctx.show_fps()
-			app.ctx.end()
+
 		}
 	} else if app.player_key == '' {
 		res := get(serv_url + 'phareouest/po') or { panic(err) }
@@ -115,10 +126,10 @@ fn on_frame(mut app App) {
 		res := get(serv_url + 'phareouest/wait_start') or { panic(err) }
 		res_body := res.body.split('/')
 		nb_player := res_body[0]
-		app.ctx.begin()
+
 		app.ctx.show_fps()
 		app.ctx.draw_text(win_width / 2, win_height / 2, 'Nb players : ${nb_player}', gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
-		app.ctx.end()
+		
 		if res_body[1] == 'true' {
 			app.game = true
 			res_map := get(serv_url + 'phareouest/map') or { panic(err) }
@@ -128,6 +139,10 @@ fn on_frame(mut app App) {
 			app.world_map = map_tempo
 		}
 	}
+	if app.pause{
+		app.settings_render()
+	}
+	app.ctx.end()
 }
 
 fn (app App) map_render(transparence u8) {
@@ -197,65 +212,7 @@ fn on_event(e &gg.Event, mut app App) {
 	coo_player_relative := [(e.mouse_x - e.window_width / 2), (e.mouse_y - e.window_height / 2)]
 	match e.typ {
 		.key_down {
-			match e.key_code {
-				.escape {
-					app.ctx.quit()
-				}
-				.enter {
-					if app.host && !app.game {
-						get(serv_url + 'phareouest/start/' + app.player_key) or { panic(err) }
-					}
-				}
-				.right {
-					if app.game && app.player_is_alive {
-						app.player_pos_x += 1
-						if app.ennemies[0] != "none"{
-							for mut enn_pos in app.ennemies{
-								enn := enn_pos.split(", ")
-								enn_pos = "${enn[0].int() + 1}, "+ enn[1] +", "+ enn[2]
-							}
-							spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/right')
-						}
-					}
-				}
-				.left {
-					if app.game && app.player_is_alive {
-						app.player_pos_x -= 1
-						if app.ennemies[0] != "none"{
-							for mut enn_pos in app.ennemies{
-								enn := enn_pos.split(", ")
-								enn_pos = "${enn[0].int() - 1}, "+ enn[1] +", "+ enn[2]
-							}
-							spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/left')
-						}
-					}
-				}
-				.down {
-					if app.game && app.player_is_alive {
-						app.player_pos_y += 1
-						if app.ennemies[0] != "none"{
-							for mut enn_pos in app.ennemies{
-								enn := enn_pos.split(", ")
-								enn_pos = enn[0] +", ${enn[1].int() + 1}, "+ enn[2]
-							}
-							spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/down')
-						}
-					}
-				}
-				.up {
-					if app.game && app.player_is_alive {
-						app.player_pos_y -= 1
-						if app.ennemies[0] != "none"{
-							for mut enn_pos in app.ennemies{
-								enn := enn_pos.split(", ")
-								enn_pos = enn[0] +", ${enn[1].int() - 1}, "+ enn[2]
-							}
-							spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/up')
-						}
-					}
-				}
-				else {}
-			}
+			app.imput(int(e.key_code))
 		}
 		.mouse_down {
 			match e.mouse_button {

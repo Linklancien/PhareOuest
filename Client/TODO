@@ -1,3 +1,4 @@
+
 added{
     addresse_ip/po/ -> te met dans la liste d attente pour la prochaine game & te donne un player_key une sorte de mot de passe genre AYa68ezrZh75tUjH75ke(utG#$lkEAG)
     /start/player_key ->  si tu as le bonplayer_key (celui de l admin / premier joueur) tu peux lancer la game
@@ -8,9 +9,10 @@ added{
     map_render()
     /action/shoot/index_pos  : shoot à la position qui est à l index index_pos dans l array des cases possibles à shoot du gun
     /alive/  -> te dis si t es mort,  à appeler après l action + Bigouden : points int -> indique la progression du bigouden (le client peut en déduire le tier)
+    /around_players/player_key : get les players dans ton champ de vision (plus petit quand y a la pluie) à appeler après l action
+
 }
 
 
-/around_players/player_key : get les players dans ton champ de vision (plus petit quand y a la pluie) à appeler après l action
 /around_items/player_key : get les items dans le champ de vision, à appeler après l action
 donner info de qui est premier joueur
