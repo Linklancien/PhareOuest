@@ -63,8 +63,9 @@ fn on_frame(mut app App) {
 			app.map_render(255)
 			app.gun_render(150)
             app.ennemies_render(255)
-            app.ctx.draw_text(win_width / 2, win_height / 2, '${app.player_name}', gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
 			app.ctx.draw_circle_filled(win_width / 2, win_height / 2, (tiles_size / 2) - 10, gx.red)
+            app.ctx.draw_text(win_width / 2, win_height / 2, '${app.player_name}', gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
+			
 			app.ctx.show_fps()
 			app.ctx.end()
 
@@ -179,11 +180,10 @@ fn (app App) gun_render(transparence u8) {
 }
 
 fn (app App) ennemies_render(transparence u8) {
-	color := gx.Color{238, 130, 238, transparence}
+	color := gx.Color{238, 0, 238, transparence}
     if app.ennemies.len > 0{
         for ennemie in app.ennemies {
             enn := ennemie.split(", ")
-			println(enn)
             x_pos := enn[0].int() * tiles_size + win_width / 2
             y_pos := enn[1].int() * tiles_size + win_height / 2
 
@@ -209,24 +209,36 @@ fn on_event(e &gg.Event, mut app App) {
 				.right {
 					if app.game && app.player_is_alive {
 						app.player_pos_x += 1
+						for mut enn_pos in app.enn_pos{
+							enn_pos[0] += 1
+						}
 						spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/right')
 					}
 				}
 				.left {
 					if app.game && app.player_is_alive {
 						app.player_pos_x -= 1
+						for mut enn_pos in app.enn_pos{
+							enn_pos[0] -= 1
+						}
 						spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/left')
 					}
 				}
 				.down {
 					if app.game && app.player_is_alive {
 						app.player_pos_y += 1
+						for mut enn_pos in app.enn_pos{
+							enn_pos[1] += 1
+						}
 						spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/down')
 					}
 				}
 				.up {
 					if app.game && app.player_is_alive {
 						app.player_pos_y -= 1
+						for mut enn_pos in app.enn_pos{
+							enn_pos[1] -= 1
+						}
 						spawn get(serv_url + 'phareouest/action/' + app.player_key + '/move/up')
 					}
 				}
