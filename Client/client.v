@@ -1,6 +1,7 @@
 import gg
 import gx
 import net.http { get }
+import os
 
 const tiles_size = 64
 const visu = 5
@@ -10,6 +11,7 @@ const win_height = tiles_size * (visu * 2 - 1)
 const bg_color = gg.Color{0, 0, 100, 255}
 
 const serv_url = 'http://93.23.133.25:8100/'
+const font_path = os.resource_abs_path('0xProtoNerdFontMono-Regular.ttf')
 
 struct App {
 mut:
@@ -24,7 +26,7 @@ mut:
 	// Pause
 	pause			bool
 	pause_scroll	int
-	text_cfg	gx.TextCfg
+	text_cfg		gx.TextCfg
 	
 	// imput_action
 	list_imput_action		[]Actions
@@ -55,6 +57,7 @@ fn main() {
 		frame_fn: on_frame
 		event_fn: on_event
 		sample_count: 2
+		font_path: font_path
 	)
 
 	// lancement du programme/de la fenêtre
@@ -134,6 +137,10 @@ fn on_frame(mut app App) {
 
 		app.ctx.show_fps()
 		app.text_rect_render(win_width / 2, win_height / 2, 'Nb players : ${nb_player}', transparence)
+		if app.host{
+			app.text_rect_render(win_width / 2, (win_height + tiles_size)/ 2, 'You are the HOST', transparence)
+			app.text_rect_render(win_width / 2, win_height/ 2 + tiles_size, "Press " + key_code_name[app.list_action_key_code[Actions.start]], transparence)
+		}
 		
 		if res_body[1] == 'true' {
 			app.game = true
@@ -208,7 +215,7 @@ fn (app App) ennemies_render(transparence u8) {
             y_pos := enn[1].int() * tiles_size + win_height / 2
 
             app.ctx.draw_circle_filled(x_pos, y_pos, (tiles_size / 2) - 10, color)
-            app.ctx.draw_text(x_pos, y_pos  - tiles_size / 2, enn[2], gx.TextCfg{ color: gx.black, size: 16, align: .center, vertical_align: .middle })
+			app.text_rect_render(x_pos, y_pos  - tiles_size / 2, enn[2], transparence - 75)
         }
     }
 }

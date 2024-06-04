@@ -300,11 +300,11 @@ fn (mut app App) imput_action(index int){
 
 // Others fonctions
 fn (app App) text_rect_render(x int, y int, text string, transparence u8){
-	lenght := text.len * app.text_cfg.size/2
+	lenght := text.len * 8 + 10
 	new_x := x - lenght/2
 	new_y := y
-	app.ctx.draw_rounded_rect_filled(new_x - 5, new_y, lenght, 25, 5, attenuation(gx.gray, transparence))
-	app.ctx.draw_text(new_x, new_y + 5, text, app.text_cfg)
+	app.ctx.draw_rounded_rect_filled(new_x, new_y, lenght, app.text_cfg.size + 10, 5, attenuation(gx.gray, transparence))
+	app.ctx.draw_text(new_x + 5, new_y + 5, text, app.text_cfg)
 }
 
 fn attenuation (color gx.Color, new_a u8) gx.Color{
