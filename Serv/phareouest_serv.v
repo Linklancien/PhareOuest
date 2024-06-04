@@ -172,6 +172,7 @@ fn (mut h Handler) handle(req Request) Response {
 				}
 				'around_players'{
 					if actions[3] in h.players_in_game_key{
+						res.body = "none"
 						player_pos_x	:= h.players_in_game[h.players[actions[3]]].x
 						player_pos_y	:= h.players_in_game[h.players[actions[3]]].y
 						for y_view in -h.visu..(h.visu + 1){
