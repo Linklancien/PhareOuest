@@ -283,21 +283,45 @@ fn (mut h  Handler) game_start(){
 }
 
 fn (mut h Handler) map_crea(){
-	h.world_map = []string{len: 10, cap: 10, init: if index == 0 || index == 9 {'eeeeeeeeee'}else if index%3 == 0{'eehhhhhhee'}else{'ehhhhhhhhe'}}
+	x_len := 20
+	y_len := 10
+	h.world_map = []string{len: y_len, cap: 10, init: map_init(index, y_len, x_len)}
 }
 
-// fn (mut h Handler) game_end(){
-// 	h.game = false
+fn map_init(index int, y_len int, x_len int) string{
+	mut y_map := ""
+	if index == 0 || index == y_len -1 {
+		// Default
+		y_map = 'eeeeeeeeee' + 'eeeeeeeeee'
+	}else if index%4 == 0{
+		y_map = 'eehhhhhhhh' + 'eehhhhhhee'
+	}else if index%3 == 0{
+		y_map = 'eeehhhhhhe' + 'ehhhhhhhee'
+	}else if index%2 == 0{
+		y_map = 'eehhhhhhhe' + 'hhhhhhhhee'
+	}else{
+		// Default
+		y_map = 'ehhhhhhhhh' + 'hhhhhhhhhe'
+	}
+
+	for y_map.len < x_len{
+		y_map += "e"
+	}
+	return y_map
+}
+
+fn (mut h Handler) game_end(){
+	h.game = false
 	
-// 	// Map
-// 	h.world_map = [][]
+	// Map
+	h.world_map.clear()
 
-// 	// players
+	// players
 
-// 	h.players_in_game_key = []
+	h.players_in_game_key.clear()
 
-// 	h.players_in_game = []
+	h.players_in_game.clear()
 
-// 	h.players.clear()
-// }
+	h.players.clear()
+}
 

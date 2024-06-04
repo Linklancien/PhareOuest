@@ -15,6 +15,5 @@ Comments
 
 }
 
-
 /around_items/player_key : get les items dans le champ de vision, à appeler après l action
 donner info de qui est premier joueur
