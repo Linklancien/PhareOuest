@@ -172,9 +172,9 @@ fn (mut h Handler) handle(req Request) Response {
 				}
 				'around_players'{
 					if actions[3] in h.players_in_game_key{
-						res.body = "none"
 						player_pos_x	:= h.players_in_game[h.players[actions[3]]].x
 						player_pos_y	:= h.players_in_game[h.players[actions[3]]].y
+						res.body = "none"
 						for y_view in -h.visu..(h.visu + 1){
 							y := y_view + player_pos_y
 
@@ -182,14 +182,16 @@ fn (mut h Handler) handle(req Request) Response {
 								x := x_view + player_pos_x
 
 								for index, player in h.players_in_game{
-									if player.x == x && player.y == y && index != h.players[actions[3]]{
-										if res.body.len == 0{
-											res.body = "${x_view}, ${y_view}, ${player.name}"
+									if index != h.players[actions[3]]{
+										if player.x == x && player.y == y {
+											
+											if res.body == "none"{
+												res.body = "${x_view}, ${y_view}, ${player.name}"
+											}
+											else{
+												res.body += "/${x_view}, ${y_view}, ${player.name}"
+											}
 										}
-										else{
-											res.body += "/${x_view}, ${y_view}, ${player.name}"
-										}
-										
 									}
 								}
 							}
