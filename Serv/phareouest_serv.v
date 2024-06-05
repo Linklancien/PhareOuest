@@ -17,6 +17,8 @@ struct  Handler {
 		
 		// Map
 		world_map	[]string
+		world_x_len int = 20
+		world_y_len int = 10
 		visu		int = 5
 }
 
@@ -65,11 +67,11 @@ fn (mut h Handler) handle(req Request) Response {
 						player_cons_index := h.players[actions[3]]
 						if !h.players_in_game[player_cons_index].alive{
 								// Coor
-								mut x := rand.int_in_range(0, 10) or {0}
-								mut y := rand.int_in_range(0, 10) or {0}
+								mut x := rand.int_in_range(0, h.world_x_len) or {0}
+								mut y := rand.int_in_range(0,  h.world_y_len) or {0}
 								for !h.check_death(x, y){
-									x = rand.int_in_range(0, 10) or {0}
-									y = rand.int_in_range(0, 10) or {0}
+									x = rand.int_in_range(0, h.world_x_len) or {0}
+									y = rand.int_in_range(0,  h.world_y_len) or {0}
 								}
 
 								gun := [[2, 0], [-2, 0], [0, 2], [0, -2]]
@@ -285,9 +287,8 @@ fn (mut h  Handler) game_start(){
 }
 
 fn (mut h Handler) map_crea(){
-	x_len := 20
-	y_len := 10
-	h.world_map = []string{len: y_len, cap: 10, init: map_init(index, y_len, x_len)}
+
+	h.world_map = []string{len: h.world_y_len, cap: 10, init: map_init(index, h.world_y_len, h.world_x_len)}
 }
 
 fn map_init(index int, y_len int, x_len int) string{
