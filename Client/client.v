@@ -235,7 +235,7 @@ fn on_event(e &gg.Event, mut app App) {
 							x := coo_player_relative[0] - pos_tir[0] * tiles_size
 							y := coo_player_relative[1] - pos_tir[1] * tiles_size
 							if click_is_in_square_center(x, y, tiles_size) {
-								spawn get(serv_url + 'phareouest/action/shoot/' + app.player_key + '/${index}')
+								spawn get(serv_url + "phareouest/action/"+ app.player_key + "/shoot/${index}")
 								break
 							}	
 						}

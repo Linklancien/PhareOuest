@@ -184,7 +184,7 @@ fn (mut h Handler) handle(req Request) Response {
 								for index, player in h.players_in_game{
 									if index != h.players[actions[3]]{
 										if player.x == x && player.y == y {
-											
+
 											if res.body == "none"{
 												res.body = "${x_view}, ${y_view}, ${player.name}"
 											}
