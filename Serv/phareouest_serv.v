@@ -31,7 +31,7 @@ fn (mut h Handler) handle(req Request) Response {
 
 	mut status_code := 200
 	actions := req.url.split('/')
-
+	//eprintln(actions)
 	match actions[1]{
 		'phareouest'{
 			match actions[2]{
@@ -55,8 +55,28 @@ fn (mut h Handler) handle(req Request) Response {
 						h.game_start()
 					}
 				}
+				'verif'{
+					if !h.game{
+						if actions[3] in h.players_po_key{
+							res.body = 'true'
+						}
+						else{
+							res.body = 'false'
+						}
+					}
+				}
 				'wait_start'{
-					res.body = '${h.players_po_key.len}/${h.game}'
+					if h.game{
+						if actions[3] in h.players_in_game_key{
+							res.body = '${h.players_po_key.len}/${h.game}/play'
+						}
+						else{
+							res.body = '${h.players_po_key.len}/${h.game}/spect'
+						}
+					}
+					else{
+						res.body = '${h.players_po_key.len}/${h.game}'
+					}
 				}
 				'map'{
 					res.body = '${h.world_map}'

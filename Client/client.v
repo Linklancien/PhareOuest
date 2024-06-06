@@ -14,6 +14,12 @@ const bg_color = gg.Color{0, 0, 100, 255}
 const serv_url = 'http://93.23.133.25:8100/'
 const font_path = os.resource_abs_path('0xProtoNerdFontMono-Regular.ttf')
 
+enum Game_mode {
+	lobby
+	game
+	spectator
+}
+
 struct App {
 mut:
 	ctx &gg.Context = unsafe { nil }
@@ -22,7 +28,7 @@ mut:
 	player_key  string
 
 	host bool
-	game bool
+	game Game_mode
 	
 	// Pause
 	pause			bool
@@ -75,6 +81,20 @@ fn on_init(mut app App) {
 		}
 	}
 	dump(player_infos)
+	test := get(serv_url + 'phareouest/verif/' + app.player_key) or { panic(err) }
+	if test.body == 'false' {
+		// Ask for a key & being place in the queue
+		res := get(serv_url + 'phareouest/po') or { panic(err) }
+		res_body := res.body.split('/')
+		app.player_key = res_body[0]
+		if res_body[1] == 'host' {
+			app.host = true
+		}
+		infos := app.player_name +"/"+ app.player_key
+		os.write_file(os.abs_path("player_infos"), if app.host{infos +"/host"} else {infos}) or{}
+		app.game = Game_mode.lobby
+	}
+	dump(app.player_key)
 }
 
 fn on_frame(mut app App) {
@@ -83,7 +103,8 @@ fn on_frame(mut app App) {
 	if app.pause{
 		transparence = 150
 	}
-	if app.game {
+
+	if app.game == Game_mode.game{
 		if app.player_is_alive {
 			// Ennemies 
 			res := get(serv_url + 'phareouest/around_players/' + app.player_key) or { panic(err) }
@@ -127,6 +148,9 @@ fn on_frame(mut app App) {
 			app.ctx.show_fps()
 		}
 	}
+	else if app.game == Game_mode.spectator {
+		app.text_rect_render(win_width / 2, win_height/ 2, 'Wait the End of the curent game please', transparence)
+	}
 	else if app.player_key == '' {
 		// Ask for a key & being place in the queue
 		res := get(serv_url + 'phareouest/po') or { panic(err) }
@@ -137,10 +161,11 @@ fn on_frame(mut app App) {
 		}
 		infos := app.player_name +"/"+ app.player_key
 		os.write_file(os.abs_path("player_infos"), if app.host{infos +"/host"} else {infos}) or{}
+		app.game = Game_mode.lobby
 	}
-	else {
+	else if app.game == Game_mode.lobby{
 		// Render the lobby
-		res := get(serv_url + 'phareouest/wait_start') or { panic(err) }
+		res := get(serv_url + 'phareouest/wait_start/'+ app.player_key) or { panic(err) }
 		res_body := res.body.split('/')
 		nb_player := res_body[0]
 
@@ -156,7 +181,7 @@ fn on_frame(mut app App) {
 		}
 		
 		if res_body[1] == 'true' {
-			app.game = true
+			app.game = Game_mode.game
 			res_map := get(serv_url + 'phareouest/map') or { panic(err) }
 			mut map_tempo := res_map.body.split("', '")
 			map_tempo[0] = map_tempo[0][2..]
@@ -164,6 +189,7 @@ fn on_frame(mut app App) {
 			app.world_map = map_tempo
 		}
 	}
+
 	if app.pause{
 		app.settings_render()
 	}

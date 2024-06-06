@@ -237,7 +237,7 @@ fn (mut app App) imput_action(index int){
 			app.ctx.quit()
 		}
 		.start {
-			if app.host && !app.game {
+			if app.host && !(app.game == Game_mode.game) {
 				get(serv_url + 'phareouest/start/' + app.player_key) or { panic(err) }
 			}
 		}
@@ -246,7 +246,7 @@ fn (mut app App) imput_action(index int){
 			app.pause = !app.pause
 		}
 		.move_right {
-			if app.game && app.player_is_alive {
+			if app.game == Game_mode.game && app.player_is_alive {
 				app.player_pos_x += 1
 				if app.ennemies[0] != "none"{
 					for mut enn_pos in app.ennemies{
@@ -258,7 +258,7 @@ fn (mut app App) imput_action(index int){
 			}
 		}
 		.move_left {
-			if app.game && app.player_is_alive {
+			if app.game == Game_mode.game && app.player_is_alive {
 				app.player_pos_x -= 1
 				if app.ennemies[0] != "none"{
 					for mut enn_pos in app.ennemies{
@@ -270,7 +270,7 @@ fn (mut app App) imput_action(index int){
 			}
 		}
 		.move_down {
-			if app.game && app.player_is_alive {
+			if app.game == Game_mode.game && app.player_is_alive {
 				app.player_pos_y += 1
 				if app.ennemies[0] != "none"{
 					for mut enn_pos in app.ennemies{
@@ -282,7 +282,7 @@ fn (mut app App) imput_action(index int){
 			}
 		}
 		.move_up {
-			if app.game && app.player_is_alive {
+			if app.game == Game_mode.game && app.player_is_alive {
 				app.player_pos_y -= 1
 				if app.ennemies[0] != "none"{
 					for mut enn_pos in app.ennemies{
