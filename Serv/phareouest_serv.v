@@ -66,19 +66,19 @@ fn (mut h Handler) handle(req Request) Response {
 						eprintln("Spawn ${actions[3]} as ${actions[4]}")
 						player_cons_index := h.players[actions[3]]
 						if !h.players_in_game[player_cons_index].alive{
-								// Coor
-								mut x := rand.int_in_range(0, h.world_x_len) or {0}
-								mut y := rand.int_in_range(0,  h.world_y_len) or {0}
-								for !h.check_death(x, y){
-									x = rand.int_in_range(0, h.world_x_len) or {0}
-									y = rand.int_in_range(0,  h.world_y_len) or {0}
-								}
+							// Coor
+							mut x := rand.int_in_range(0, h.world_x_len) or {0}
+							mut y := rand.int_in_range(0,  h.world_y_len) or {0}
+							for !h.check_death(x, y){
+								x = rand.int_in_range(0, h.world_x_len) or {0}
+								y = rand.int_in_range(0,  h.world_y_len) or {0}
+							}
 
-								gun := [[2, 0], [-2, 0], [0, 2], [0, -2]]
+							gun := [[2, 0], [-2, 0], [0, 2], [0, -2]]
 
-								h.players_in_game[player_cons_index] = Player{actions[4], true, x, y, Orientations.up, 1, gun}
-								res.body = '${x}/${y}/${gun}'
-								return res
+							h.players_in_game[player_cons_index] = Player{actions[4], true, x, y, Orientations.up, 1, gun}
+							res.body = '${x}/${y}/${gun}'
+							return res
 						}
 					}
 				}
