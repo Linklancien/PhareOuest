@@ -53,6 +53,7 @@ fn main() {
 		window_title: '- Phare Ouest -'
 		user_data: app
 		bg_color: bg_color
+		init_fn:	on_init
 		frame_fn: on_frame
 		event_fn: on_event
 		sample_count: 2
@@ -60,8 +61,20 @@ fn main() {
 	)
 
 	// lancement du programme/de la fenêtre
-	app.list_imput_action_key_code_init()
 	app.ctx.run()
+}
+
+fn on_init(mut app App) {
+	app.list_imput_action_key_code_init()
+	player_infos := os.read_file(os.abs_path("player_infos")) or{"Moi/"}.split('/')  // player_name / player_key
+	app.player_name = player_infos[0]
+	app.player_key = player_infos[1]
+	if player_infos.len == 3{
+		if player_infos[2] == "host"{
+			app.host = true
+		}
+	}
+	dump(player_infos)
 }
 
 fn on_frame(mut app App) {
@@ -122,6 +135,8 @@ fn on_frame(mut app App) {
 		if res_body[1] == 'host' {
 			app.host = true
 		}
+		infos := app.player_name +"/"+ app.player_key
+		os.write_file(os.abs_path("player_infos"), if app.host{infos +"/host"} else {infos}) or{}
 	}
 	else {
 		// Render the lobby
